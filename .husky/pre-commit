@@ -1,0 +1,12 @@
+# ...existing code...
+# Get list of staged files that are added or modified
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=AM | grep -E '\.(js|ts|tsx|jsx|json|css|scss|html)$')
+
+if [ -n "$STAGED_FILES" ]; then
+  # Format files
+  npx prettier --write $STAGED_FILES
+  # Lint files
+  npx eslint --fix $STAGED_FILES 2>/dev/null || true
+  # Add changes to staging
+  git add $STAGED_FILES
+fi
