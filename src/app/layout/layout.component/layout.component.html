@@ -1,0 +1,58 @@
+<div class="min-h-screen flex flex-col bg-[color:var(--color-base)] text-black">
+  <header class="bg-[color:var(--color-primary)] text-white flex items-center justify-between p-4">
+    <div class="flex items-center space-x-4">
+      <button class="" aria-label="Toggle sidebar" (click)="toggleSidebar()">
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      <span class="text-xl font-bold">My Expense Tracker</span>
+      <img ngSrc="white-magnifying-glass-dollar.svg" width="32" height="32" alt="Logo" />
+    </div>
+  </header>
+
+  <div class="flex flex-1">
+    @if (sidebarOpen()) {
+      <div class="fixed inset-0 bg-black/50 z-10 lg:hidden" (click)="toggleSidebar()"></div>
+    }
+
+    @if (sidebarOpen()) {
+      <aside
+        class="fixed z-20 inset-y-0 left-0 w-64 p-4 bg-[color:var(--color-accent)] text-white transform transition-transform lg:static lg:translate-x-0"
+      >
+        <nav>
+          <ul class="space-y-2">
+            @for (link of links; track link.path) {
+              <li>
+                <a
+                  [routerLink]="link.path"
+                  routerLinkActive="bg-[color:var(--color-secondary)]"
+                  class="block px-4 py-2 rounded hover:bg-[color:var(--color-secondary)]"
+                >
+                  {{ link.label }}
+                </a>
+              </li>
+            }
+          </ul>
+        </nav>
+      </aside>
+    }
+
+    <main class="flex-1 p-6">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+
+  <footer class="bg-[color:var(--color-info)] text-white text-center p-4">
+    © {{ today | date: 'yyyy' }} My Expense Tracker — All rights reserved.
+  </footer>
+</div>
