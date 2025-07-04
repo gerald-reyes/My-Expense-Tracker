@@ -65,7 +65,6 @@ export class ExpenseCategoryApi implements ExpenseCategoryRepository {
     create: gql`
       mutation ($input: CreateExpenseCategoryInput!) {
         createExpenseCategory(input: $input) {
-          id
           name
           description
           createdAt
