@@ -26,7 +26,7 @@ export const appConfig: ApplicationConfig = {
 
       return {
         link: httpLink.create({
-          uri: 'https://graphqlzero.almansi.me/api',
+          uri: 'http://localhost:5119/graphql',
         }),
         cache: new InMemoryCache(),
       };
