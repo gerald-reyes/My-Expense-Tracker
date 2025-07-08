@@ -1,0 +1,9 @@
+@if (loading()) {
+  <div>Loading...</div>
+} @else if (error()) {
+  <div>Error</div>
+} @else if (expenseCategories()) {
+  @for (expenseCategory of expenseCategories(); track expenseCategory.id) {
+    <p>{{ expenseCategory.name }}</p>
+  }
+}
