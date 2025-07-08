@@ -3,6 +3,7 @@ import { ExpenseCategory } from '../../domain/models/expense-category';
 import { ExpenseCategoryRepository } from '../../domain/ports/expense-category-repository';
 import { GraphQLService } from '../shared/graphql/graphql.service';
 import { gql } from 'apollo-angular';
+import { map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -92,54 +93,87 @@ export class ExpenseCategoryApi implements ExpenseCategoryRepository {
     `,
   };
 
-  async getById(id: number): Promise<ExpenseCategory | null> {
-    return this.gqlService.runQuery<{
-      expenseCategory: ExpenseCategory | null;
-    }>(this.queries.getById, { id }, 'expenseCategory');
+  getById(id: number) {
+    return this.gqlService
+      .runQuery<{
+        expenseCategory: ExpenseCategory | undefined;
+      }>(this.queries.getById, { id }, 'expenseCategory')
+      .pipe(
+        map((category) => {
+          if (!category) {
+            throw new Error(`Expense category with id ${id} not found`);
+          }
+          return category;
+        }),
+      );
   }
 
-  async getAll(): Promise<ExpenseCategory[]> {
-    return this.gqlService.runQuery<{ expenseCategories: ExpenseCategory[] }>(
-      this.queries.getAll,
-      {},
-      'expenseCategories',
-    );
+  getAll() {
+    return this.gqlService
+      .runQuery<{
+        expenseCategories: ExpenseCategory[];
+      }>(this.queries.getAll, {}, 'expenseCategories')
+      .pipe(map((categories) => categories || []));
   }
 
-  async create(
-    category: Omit<ExpenseCategory, 'id' | 'createdAt' | 'updatedAt'>,
-  ): Promise<ExpenseCategory> {
-    return this.gqlService.runMutation<{
-      createExpenseCategory: ExpenseCategory;
-    }>(this.mutations.create, { input: category }, 'createExpenseCategory');
+  create(category: Omit<ExpenseCategory, 'id' | 'createdAt' | 'updatedAt'>) {
+    return this.gqlService
+      .runMutation<{
+        createExpenseCategory: ExpenseCategory | undefined;
+      }>(this.mutations.create, { input: category }, 'createExpenseCategory')
+      .pipe(
+        map((result) => {
+          if (!result) {
+            throw new Error('Failed to create expense category');
+          }
+          return result;
+        }),
+      );
   }
 
-  async update(
-    id: number,
-    updates: Partial<Omit<ExpenseCategory, 'id' | 'createdAt' | 'updatedAt'>>,
-  ): Promise<ExpenseCategory | null> {
-    return this.gqlService.runMutation<{
-      updateExpenseCategory: ExpenseCategory | null;
-    }>(this.mutations.update, { id, updates }, 'updateExpenseCategory');
+  update(id: number, updates: Partial<Omit<ExpenseCategory, 'id' | 'createdAt' | 'updatedAt'>>) {
+    return this.gqlService
+      .runMutation<{
+        updateExpenseCategory: ExpenseCategory | null | undefined;
+      }>(this.mutations.update, { id, updates }, 'updateExpenseCategory')
+      .pipe(
+        map((result) => {
+          if (!result) {
+            throw new Error(`Failed to update expense category with id ${id}`);
+          }
+          return result;
+        }),
+      );
   }
 
-  async delete(id: number): Promise<boolean> {
-    return this.gqlService.runMutation<{ deleteExpenseCategory: boolean }>(
-      this.mutations.delete,
-      { id },
-      'deleteExpenseCategory',
-    );
+  delete(id: number) {
+    return this.gqlService
+      .runMutation<{
+        deleteExpenseCategory: boolean | undefined;
+      }>(this.mutations.delete, { id }, 'deleteExpenseCategory')
+      .pipe(
+        map((result) => {
+          if (result === undefined) {
+            throw new Error(`Failed to delete expense category with id ${id}`);
+          }
+          return result;
+        }),
+      );
   }
 
-  async searchByName(name: string): Promise<ExpenseCategory[]> {
-    return this.gqlService.runQuery<{
-      searchExpenseCategories: ExpenseCategory[];
-    }>(this.queries.searchByName, { name }, 'searchExpenseCategories');
+  searchByName(name: string) {
+    return this.gqlService
+      .runQuery<{
+        searchExpenseCategories: ExpenseCategory[];
+      }>(this.queries.searchByName, { name }, 'searchExpenseCategories')
+      .pipe(map((categories) => categories || []));
   }
 
-  async filterByActiveStatus(isActive: boolean): Promise<ExpenseCategory[]> {
-    return this.gqlService.runQuery<{
-      filterExpenseCategories: ExpenseCategory[];
-    }>(this.queries.filterByActiveStatus, { isActive }, 'filterExpenseCategories');
+  filterByActiveStatus(isActive: boolean) {
+    return this.gqlService
+      .runQuery<{
+        filterExpenseCategories: ExpenseCategory[];
+      }>(this.queries.filterByActiveStatus, { isActive }, 'filterExpenseCategories')
+      .pipe(map((categories) => categories || []));
   }
 }

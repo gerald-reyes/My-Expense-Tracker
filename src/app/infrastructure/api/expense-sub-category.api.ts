@@ -3,6 +3,7 @@ import { gql } from 'apollo-angular';
 import { ExpenseSubCategory } from '../../domain/models/expense-sub-category';
 import { ExpenseSubCategoryRepository } from '../../domain/ports/expense-sub-category-repository';
 import { GraphQLService } from '../shared/graphql/graphql.service';
+import { map } from 'rxjs/internal/operators/map';
 
 @Injectable({
   providedIn: 'root',
@@ -79,53 +80,95 @@ export class ExpenseSubCategoryApi implements ExpenseSubCategoryRepository {
     `,
   };
 
-  async getAll(): Promise<ExpenseSubCategory[]> {
-    return this.gqlService.runQuery<{
-      expenseSubCategories: ExpenseSubCategory[];
-    }>(this.queries.getAll, {}, 'expenseSubCategories');
+  getAll() {
+    return this.gqlService
+      .runQuery<{
+        expenseSubCategories: ExpenseSubCategory[];
+      }>(this.queries.getAll, {}, 'expenseSubCategories')
+      .pipe(map((subCategories) => subCategories || []));
   }
 
-  async getById(id: string): Promise<ExpenseSubCategory | null> {
-    return this.gqlService.runQuery<{
-      expenseSubCategory: ExpenseSubCategory | null;
-    }>(this.queries.getById, { id }, 'expenseSubCategory');
+  getById(id: string) {
+    return this.gqlService
+      .runQuery<{
+        expenseSubCategory: ExpenseSubCategory | null;
+      }>(this.queries.getById, { id }, 'expenseSubCategory')
+      .pipe(
+        map((subCategory) => {
+          if (!subCategory) {
+            throw new Error(`Expense sub-category with id ${id} not found`);
+          }
+          return subCategory;
+        }),
+      );
   }
 
-  async create(sub: ExpenseSubCategory): Promise<ExpenseSubCategory> {
-    return this.gqlService.runMutation<{
-      createExpenseSubCategory: ExpenseSubCategory;
-    }>(this.mutations.create, { input: sub }, 'createExpenseSubCategory');
+  create(sub: ExpenseSubCategory) {
+    return this.gqlService
+      .runMutation<{
+        createExpenseSubCategory: ExpenseSubCategory;
+      }>(this.mutations.create, { input: sub }, 'createExpenseSubCategory')
+      .pipe(
+        map((result) => {
+          if (!result) {
+            throw new Error('Failed to create expense sub-category');
+          }
+          return result;
+        }),
+      );
   }
 
-  async update(id: string, patch: Partial<ExpenseSubCategory>): Promise<ExpenseSubCategory> {
-    return this.gqlService.runMutation<{
-      updateExpenseSubCategory: ExpenseSubCategory;
-    }>(this.mutations.update, { id, input: patch }, 'updateExpenseSubCategory');
+  update(id: string, patch: Partial<ExpenseSubCategory>) {
+    return this.gqlService
+      .runMutation<{
+        updateExpenseSubCategory: ExpenseSubCategory;
+      }>(this.mutations.update, { id, input: patch }, 'updateExpenseSubCategory')
+      .pipe(
+        map((result) => {
+          if (!result) {
+            throw new Error(`Failed to update expense sub-category with id ${id}`);
+          }
+          return result;
+        }),
+      );
   }
 
-  async delete(id: string): Promise<void> {
-    await this.gqlService.runMutation<{ deleteExpenseSubCategory: boolean }>(
-      this.mutations.delete,
-      { id },
-      'deleteExpenseSubCategory',
-    );
+  delete(id: string) {
+    return this.gqlService
+      .runMutation<{
+        deleteExpenseSubCategory: boolean;
+      }>(this.mutations.delete, { id }, 'deleteExpenseSubCategory')
+      .pipe(
+        map((result) => {
+          if (result === undefined) {
+            throw new Error(`Failed to delete expense sub-category with id ${id}`);
+          }
+          return result;
+        }),
+      );
   }
 
-  async getByParentCategoryId(parentCategoryId: string): Promise<ExpenseSubCategory[]> {
-    return this.gqlService.runQuery<{
-      expenseSubCategoriesByParent: ExpenseSubCategory[];
-    }>(this.queries.getByParentCategoryId, { parentCategoryId }, 'expenseSubCategoriesByParent');
+  getByParentCategoryId(parentCategoryId: string) {
+    return this.gqlService
+      .runQuery<{
+        expenseSubCategoriesByParent: ExpenseSubCategory[];
+      }>(this.queries.getByParentCategoryId, { parentCategoryId }, 'expenseSubCategoriesByParent')
+      .pipe(map((subCategories) => subCategories || []));
   }
 
-  async searchByName(name: string): Promise<ExpenseSubCategory[]> {
-    return this.gqlService.runQuery<{
-      expenseSubCategoriesByName: ExpenseSubCategory[];
-    }>(this.queries.searchByName, { name }, 'expenseSubCategoriesByName');
+  searchByName(name: string) {
+    return this.gqlService
+      .runQuery<{
+        expenseSubCategoriesByName: ExpenseSubCategory[];
+      }>(this.queries.searchByName, { name }, 'expenseSubCategoriesByName')
+      .pipe(map((subCategories) => subCategories || []));
   }
 
-  async filterByActiveStatus(isActive: boolean): Promise<ExpenseSubCategory[]> {
-    return this.gqlService.runQuery<{
-      expenseSubCategoriesByActiveStatus: ExpenseSubCategory[];
-    }>(this.queries.filterByActiveStatus, { isActive }, 'expenseSubCategoriesByActiveStatus');
+  filterByActiveStatus(isActive: boolean) {
+    return this.gqlService
+      .runQuery<{
+        expenseSubCategoriesByActiveStatus: ExpenseSubCategory[];
+      }>(this.queries.filterByActiveStatus, { isActive }, 'expenseSubCategoriesByActiveStatus')
+      .pipe(map((subCategories) => subCategories || []));
   }
 }

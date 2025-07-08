@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -8,24 +8,22 @@ import { firstValueFrom } from 'rxjs';
 export class GraphQLService {
   private readonly apollo = inject(Apollo);
 
-  async runQuery<T>(query: any, variables: any, key: keyof T): Promise<any> {
-    const result = await firstValueFrom(
-      this.apollo.query<T>({
+  runQuery<T>(query: any, variables: any, key: keyof T) {
+    return this.apollo
+      .query<T>({
         query,
         variables,
         fetchPolicy: 'network-only',
-      }),
-    );
-    return result.data?.[key];
+      })
+      .pipe(map((result) => result.data?.[key]));
   }
 
-  async runMutation<T>(mutation: any, variables: any, key: keyof T): Promise<any> {
-    const result = await firstValueFrom(
-      this.apollo.mutate<T>({
+  runMutation<T>(mutation: any, variables: any, key: keyof T) {
+    return this.apollo
+      .mutate<T>({
         mutation,
         variables,
-      }),
-    );
-    return result.data?.[key];
+      })
+      .pipe(map((result) => result.data?.[key]));
   }
 }
