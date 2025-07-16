@@ -27,6 +27,7 @@ export class CategoriesComponent {
       headerName: 'Description',
       sortable: true,
       filter: true,
+      flex: 1, // This column will expand to take extra space
     },
     {
       field: 'createdAt',
