@@ -1,18 +1,16 @@
 <div class="flex flex-col space-y-6 px-4 py-6">
-  <h2 class="text-xl font-semibold text-white text-center mb-2">Expense Categories</h2>
+  <h2 class="text-xl font-semibold text-white text-center mb-10">Expense Categories</h2>
 
-  <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-4">
+  <div class="flex flex-col sm:flex-row sm:items-center gap-2 mb-10">
     <input
       type="text"
       placeholder="Search categories..."
-      class="bg-[color:var(--color-secondary)] text-white px-4 py-2 rounded"
+      class="bg-white text-black px-4 py-2 rounded sm:w-100"
     />
     <button
       class="bg-[color:var(--color-primary)] text-white px-4 py-2 rounded hover:bg-[color:var(--color-primary-hover)]"
       (click)="addCategory()"
-    >
-      Create Category
-    </button>
+    ></button>
   </div>
 
   <div class="flex-1 flex items-center justify-center">
