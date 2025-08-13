@@ -4,7 +4,6 @@ import { ExpenseCategoryApi } from '../../../infrastructure/api/expense-category
 import { ExpenseCategory } from '../../../domain/models/expense-category';
 import { AgGridAngular } from 'ag-grid-angular';
 import {
-  themeBalham,
   themeQuartz,
   type ColDef,
   type GridApi,

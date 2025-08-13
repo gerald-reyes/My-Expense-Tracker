@@ -9,7 +9,9 @@ export const routes: Routes = [
       {
         path: 'expenses',
         loadChildren: () =>
-          import('./features/expenses/expenses.routes').then((m) => m.expensesRoutes),
+          import('./features/expense_categories/expenses.categories.routes').then(
+            (m) => m.expensesCategoriesRoutes,
+          ),
       },
     ],
   },
