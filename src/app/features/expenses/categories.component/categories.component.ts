@@ -11,6 +11,8 @@ import {
   type GridReadyEvent,
   type IRowNode,
 } from 'ag-grid-community';
+import { Dialog } from '@angular/cdk/dialog';
+import { CategoryComponent } from '../category.component/category.component';
 
 @Component({
   selector: 'app-categories.component',
@@ -18,16 +20,15 @@ import {
   templateUrl: './categories.component.html',
 })
 export class CategoriesComponent {
+  private dialog = inject(Dialog);
   private gridApi!: GridApi<ExpenseCategory>;
   public theme = themeQuartz;
   searchControl = new FormControl<string>('');
-  addCategory() {
-    throw new Error('Method not implemented.');
-  }
   expenseCategoryApi = inject(ExpenseCategoryApi);
   expenseCategories = signal<ExpenseCategory[] | undefined>(undefined);
   loading = signal(true);
   error = signal<any>(undefined);
+  lastResult: unknown;
 
   // Correctly typed column definitions for ag-grid
   columnDefs: ColDef<ExpenseCategory>[] = [
@@ -100,4 +101,12 @@ export class CategoriesComponent {
     }
     return true;
   };
+
+  addCategory() {
+    const ref = this.dialog.open(CategoryComponent, {
+      data: { category: { name: '', description: '' } },
+      backdropClass: ['bg-black/40'],
+    });
+    ref.closed.subscribe((result) => (this.lastResult = result)); // {name,email} or undefined
+  }
 }
