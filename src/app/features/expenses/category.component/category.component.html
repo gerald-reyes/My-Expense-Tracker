@@ -1,0 +1,49 @@
+<div
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="'dlg-title'"
+  class="w-[min(92vw,28rem)] rounded-2xl bg-white p-6 shadow-xl"
+>
+  <h2 id="dlg-title" class="text-xl font-semibold mb-4">User</h2>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+    <div>
+      <label for="name" class="block text-sm font-medium mb-1">Name</label>
+      <input
+        id="name"
+        type="text"
+        formControlName="name"
+        class="w-full rounded-lg border px-3 py-2"
+        autofocus
+      />
+      @if (form.get('name')?.touched && form.get('name')?.invalid) {
+        <p class="text-sm text-red-600 mt-1">Name is required.</p>
+      }
+    </div>
+
+    <div>
+      <label for="description" class="block text-sm font-medium mb-1">Description</label>
+      <textarea
+        id="description"
+        formControlName="description"
+        class="w-full rounded-lg border px-3 py-2"
+      ></textarea>
+      @if (form.get('description')?.touched && form.get('description')?.invalid) {
+        <p class="text-sm text-red-600 mt-1">Description is required.</p>
+      }
+    </div>
+
+    <div class="flex justify-end gap-2 pt-2">
+      <button type="button" class="rounded-lg px-3 py-2 border" (click)="dialogRef.close()">
+        Cancel
+      </button>
+      <button
+        type="submit"
+        class="rounded-lg px-4 py-2 bg-black text-white disabled:opacity-50"
+        [disabled]="form.invalid"
+      >
+        Save
+      </button>
+    </div>
+  </form>
+</div>
