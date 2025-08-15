@@ -5,9 +5,7 @@ import { GraphQLService } from '../shared/graphql/graphql.service';
 import { gql } from 'apollo-angular';
 import { map } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable()
 export class ExpenseCategoryApi implements ExpenseCategoryRepository {
   private readonly gqlService = inject(GraphQLService);
 
