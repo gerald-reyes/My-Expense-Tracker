@@ -1,6 +1,5 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { ExpenseCategoryApi } from '../../../infrastructure/api/expense-category.api';
 import { ExpenseCategory } from '../../../domain/models/expense-category';
 import { AgGridAngular } from 'ag-grid-angular';
 import {
@@ -12,21 +11,24 @@ import {
 } from 'ag-grid-community';
 import { Dialog } from '@angular/cdk/dialog';
 import { CategoryComponent } from '../category.component/category.component';
+import { ExpensesCategoriesService } from '../expenses.categories.service';
+import { ExpenseCategoryApi } from '../../../infrastructure/api/expense-category.api';
 
 @Component({
   selector: 'app-categories.component',
   imports: [AgGridAngular, ReactiveFormsModule],
   templateUrl: './categories.component.html',
+  providers: [ExpensesCategoriesService, ExpenseCategoryApi],
 })
 export class CategoriesComponent {
+  private readonly expensesCategoriesService = inject(ExpensesCategoriesService);
   private dialog = inject(Dialog);
   private gridApi!: GridApi<ExpenseCategory>;
   public theme = themeQuartz;
+  expenseCategories = this.expensesCategoriesService.categories;
+  loading = this.expensesCategoriesService.loading;
+  error = this.expensesCategoriesService.error;
   searchControl = new FormControl<string>('');
-  expenseCategoryApi = inject(ExpenseCategoryApi);
-  expenseCategories = signal<ExpenseCategory[] | undefined>(undefined);
-  loading = signal(true);
-  error = signal<any>(undefined);
   lastResult: unknown;
 
   // Correctly typed column definitions for ag-grid
@@ -64,16 +66,7 @@ export class CategoriesComponent {
   ngOnInit() {
     this.loading.set(true);
 
-    this.expenseCategoryApi.getAll().subscribe({
-      next: (categories) => {
-        this.expenseCategories.set(categories);
-        this.loading.set(false);
-      },
-      error: (error) => {
-        this.error.set(error);
-        this.loading.set(false);
-      },
-    });
+    this.expensesCategoriesService.getAll();
 
     this.searchControl.valueChanges.subscribe((searchTerm) => {
       if (this.gridApi) {
