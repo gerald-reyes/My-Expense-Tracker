@@ -97,8 +97,18 @@ export class CategoriesComponent {
   addCategory() {
     const ref = this.dialog.open(CategoryComponent, {
       data: { category: { name: '', description: '' } },
+      disableClose: true, // prevent accidental dismiss while saving
       backdropClass: ['bg-black/40'],
     });
-    ref.closed.subscribe((result) => (this.lastResult = result)); // {name,email} or undefined
+
+    const categoryComponent = ref.componentInstance!;
+
+    const saveRequestedSubscription = categoryComponent.saveRequested.subscribe((category) => {
+      this.expensesCategoriesService.createExpenseCategory(category);
+    });
+
+    ref.closed.subscribe((result) => {
+      saveRequestedSubscription.unsubscribe();
+    });
   }
 }

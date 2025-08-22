@@ -34,16 +34,27 @@
     </div>
 
     <div class="flex justify-end gap-2 pt-2">
-      <button type="button" class="rounded-lg px-3 py-2 border" (click)="dialogRef.close()">
+      <button
+        type="button"
+        [disabled]="form.invalid || isSaving()"
+        class="rounded-lg px-3 py-2 border"
+        (click)="dialogRef.close()"
+      >
         Cancel
       </button>
       <button
         type="submit"
         class="rounded-lg px-4 py-2 bg-black text-white disabled:opacity-50"
-        [disabled]="form.invalid"
+        [disabled]="form.invalid || isSaving()"
       >
         Save
       </button>
     </div>
+    @if (isSaving()) {
+      <p class="text-sm text-gray-500">Saving...</p>
+    }
+    @if (serverError()) {
+      <p class="error">{{ serverError() }}</p>
+    }
   </form>
 </div>
