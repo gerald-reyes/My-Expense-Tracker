@@ -1,20 +1,19 @@
 import { Component, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
   imports: [RouterModule, CommonModule],
-  templateUrl: './layout.component.html',
+  templateUrl: './layout.page.html',
 })
-export class LayoutComponent {
+export class LayoutPage {
   sidebarOpen = signal(false);
   today = new Date();
 
   links = [
-    { label: 'Expense Categories', path: '/expenses/categories' },
+    { label: 'Categories', path: '/categories' },
     { label: 'History', path: '/history' },
     { label: 'Budgets', path: '/budgets' },
     { label: 'Goals', path: '/goals' },

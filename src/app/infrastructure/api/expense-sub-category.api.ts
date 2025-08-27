@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { gql } from 'apollo-angular';
-import { ExpenseSubCategory } from '../../domain/models/expense-sub-category';
+import { SubCategory } from '../../features/categories/data-access/models/sub-category.model';
 import { ExpenseSubCategoryRepository } from '../../domain/ports/expense-sub-category-repository';
-import { GraphQLService } from '../shared/graphql/graphql.service';
+import { GraphQLService } from '../../shared/utils/graphql/graphql.service';
 import { map } from 'rxjs/internal/operators/map';
 
 @Injectable({
@@ -83,7 +83,7 @@ export class ExpenseSubCategoryApi implements ExpenseSubCategoryRepository {
   getAll() {
     return this.gqlService
       .runQuery<{
-        expenseSubCategories: ExpenseSubCategory[];
+        expenseSubCategories: SubCategory[];
       }>(this.queries.getAll, {}, 'expenseSubCategories')
       .pipe(map((subCategories) => subCategories || []));
   }
@@ -91,7 +91,7 @@ export class ExpenseSubCategoryApi implements ExpenseSubCategoryRepository {
   getById(id: string) {
     return this.gqlService
       .runQuery<{
-        expenseSubCategory: ExpenseSubCategory | null;
+        expenseSubCategory: SubCategory | null;
       }>(this.queries.getById, { id }, 'expenseSubCategory')
       .pipe(
         map((subCategory) => {
@@ -103,10 +103,10 @@ export class ExpenseSubCategoryApi implements ExpenseSubCategoryRepository {
       );
   }
 
-  create(sub: ExpenseSubCategory) {
+  create(sub: SubCategory) {
     return this.gqlService
       .runMutation<{
-        createExpenseSubCategory: ExpenseSubCategory;
+        createExpenseSubCategory: SubCategory;
       }>(this.mutations.create, { input: sub }, 'createExpenseSubCategory')
       .pipe(
         map((result) => {
@@ -118,10 +118,10 @@ export class ExpenseSubCategoryApi implements ExpenseSubCategoryRepository {
       );
   }
 
-  update(id: string, patch: Partial<ExpenseSubCategory>) {
+  update(id: string, patch: Partial<SubCategory>) {
     return this.gqlService
       .runMutation<{
-        updateExpenseSubCategory: ExpenseSubCategory;
+        updateExpenseSubCategory: SubCategory;
       }>(this.mutations.update, { id, input: patch }, 'updateExpenseSubCategory')
       .pipe(
         map((result) => {
@@ -151,7 +151,7 @@ export class ExpenseSubCategoryApi implements ExpenseSubCategoryRepository {
   getByParentCategoryId(parentCategoryId: string) {
     return this.gqlService
       .runQuery<{
-        expenseSubCategoriesByParent: ExpenseSubCategory[];
+        expenseSubCategoriesByParent: SubCategory[];
       }>(this.queries.getByParentCategoryId, { parentCategoryId }, 'expenseSubCategoriesByParent')
       .pipe(map((subCategories) => subCategories || []));
   }
@@ -159,7 +159,7 @@ export class ExpenseSubCategoryApi implements ExpenseSubCategoryRepository {
   searchByName(name: string) {
     return this.gqlService
       .runQuery<{
-        expenseSubCategoriesByName: ExpenseSubCategory[];
+        expenseSubCategoriesByName: SubCategory[];
       }>(this.queries.searchByName, { name }, 'expenseSubCategoriesByName')
       .pipe(map((subCategories) => subCategories || []));
   }
@@ -167,7 +167,7 @@ export class ExpenseSubCategoryApi implements ExpenseSubCategoryRepository {
   filterByActiveStatus(isActive: boolean) {
     return this.gqlService
       .runQuery<{
-        expenseSubCategoriesByActiveStatus: ExpenseSubCategory[];
+        expenseSubCategoriesByActiveStatus: SubCategory[];
       }>(this.queries.filterByActiveStatus, { isActive }, 'expenseSubCategoriesByActiveStatus')
       .pipe(map((subCategories) => subCategories || []));
   }

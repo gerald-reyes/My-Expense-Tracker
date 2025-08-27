@@ -1,12 +1,11 @@
 import { inject, Injectable } from '@angular/core';
-import { ExpenseCategory } from '../../domain/models/expense-category';
-import { ExpenseCategoryRepository } from '../../domain/ports/expense-category-repository';
-import { GraphQLService } from '../shared/graphql/graphql.service';
+import { GraphQLService } from '../../../shared/utils/graphql/graphql.service';
 import { gql } from 'apollo-angular';
 import { map } from 'rxjs';
+import { CategoryDto } from './models/category.dto';
 
 @Injectable()
-export class ExpenseCategoryApi implements ExpenseCategoryRepository {
+export class CategoriesApi {
   private readonly gqlService = inject(GraphQLService);
 
   private readonly queries = {
@@ -64,6 +63,7 @@ export class ExpenseCategoryApi implements ExpenseCategoryRepository {
     create: gql`
       mutation ($input: CreateExpenseCategoryInput!) {
         createExpenseCategory(input: $input) {
+          id
           name
           description
           createdAt
@@ -94,7 +94,7 @@ export class ExpenseCategoryApi implements ExpenseCategoryRepository {
   getById(id: number) {
     return this.gqlService
       .runQuery<{
-        expenseCategory: ExpenseCategory | undefined;
+        expenseCategory: CategoryDto | undefined;
       }>(this.queries.getById, { id }, 'expenseCategory')
       .pipe(
         map((category) => {
@@ -107,17 +107,15 @@ export class ExpenseCategoryApi implements ExpenseCategoryRepository {
   }
 
   getAll() {
-    return this.gqlService
-      .runQuery<{
-        expenseCategories: ExpenseCategory[];
-      }>(this.queries.getAll, {}, 'expenseCategories')
-      .pipe(map((categories) => categories || []));
+    return this.gqlService.runQuery<{
+      expenseCategories: CategoryDto[];
+    }>(this.queries.getAll, {}, 'expenseCategories');
   }
 
-  create(category: Omit<ExpenseCategory, 'id' | 'createdAt' | 'updatedAt'>) {
+  create(category: Omit<CategoryDto, 'id' | 'createdAt' | 'updatedAt'>) {
     return this.gqlService
       .runMutation<{
-        createExpenseCategory: ExpenseCategory | undefined;
+        createExpenseCategory: CategoryDto | undefined;
       }>(this.mutations.create, { input: category }, 'createExpenseCategory')
       .pipe(
         map((result) => {
@@ -129,10 +127,13 @@ export class ExpenseCategoryApi implements ExpenseCategoryRepository {
       );
   }
 
-  update(id: number, updates: Partial<Omit<ExpenseCategory, 'id' | 'createdAt' | 'updatedAt'>>) {
+  update(
+    id: number,
+    updates: Partial<Omit<CategoryDto, 'id' | 'createdAt' | 'updatedAt'>>,
+  ) {
     return this.gqlService
       .runMutation<{
-        updateExpenseCategory: ExpenseCategory | null | undefined;
+        updateExpenseCategory: CategoryDto | null | undefined;
       }>(this.mutations.update, { id, updates }, 'updateExpenseCategory')
       .pipe(
         map((result) => {
@@ -162,7 +163,7 @@ export class ExpenseCategoryApi implements ExpenseCategoryRepository {
   searchByName(name: string) {
     return this.gqlService
       .runQuery<{
-        searchExpenseCategories: ExpenseCategory[];
+        searchExpenseCategories: CategoryDto[];
       }>(this.queries.searchByName, { name }, 'searchExpenseCategories')
       .pipe(map((categories) => categories || []));
   }
@@ -170,8 +171,12 @@ export class ExpenseCategoryApi implements ExpenseCategoryRepository {
   filterByActiveStatus(isActive: boolean) {
     return this.gqlService
       .runQuery<{
-        filterExpenseCategories: ExpenseCategory[];
-      }>(this.queries.filterByActiveStatus, { isActive }, 'filterExpenseCategories')
+        filterExpenseCategories: CategoryDto[];
+      }>(
+        this.queries.filterByActiveStatus,
+        { isActive },
+        'filterExpenseCategories',
+      )
       .pipe(map((categories) => categories || []));
   }
 }

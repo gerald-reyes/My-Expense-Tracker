@@ -1,7 +1,7 @@
-import { inject, Injectable, signal, OnDestroy } from '@angular/core';
+/* import { inject, Injectable, signal, OnDestroy } from '@angular/core';
 import { ExpenseCategoryApi } from '../../infrastructure/api/expense-category.api';
 import { Subject, takeUntil } from 'rxjs';
-import { ExpenseCategory } from '../../domain/models/expense-category';
+import { Category } from '../categories/data-access/models/category.model';
 
 @Injectable()
 export class ExpensesCategoriesService implements OnDestroy {
@@ -9,8 +9,8 @@ export class ExpensesCategoriesService implements OnDestroy {
   expenseCategoryApi = inject(ExpenseCategoryApi);
   readonly loading = signal(false);
   readonly error = signal(null);
-  readonly category = signal<ExpenseCategory | null>(null);
-  readonly categories = signal<ExpenseCategory[] | null>(null);
+  readonly category = signal<Category | null>(null);
+  readonly categories = signal<Category[] | null>(null);
   createExpenseCategory(categoryData: any) {
     this.loading.set(true);
     this.expenseCategoryApi
@@ -52,3 +52,4 @@ export class ExpensesCategoriesService implements OnDestroy {
     this.destroy$.complete();
   }
 }
+ */

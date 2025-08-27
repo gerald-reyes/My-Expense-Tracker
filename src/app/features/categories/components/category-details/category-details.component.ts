@@ -1,25 +1,25 @@
-import { Component, output, signal } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
+import { Category } from '../../data-access/models/category.model';
 
-type Category = { name: string; description?: string };
-type DialogData = { category?: Partial<Category> };
-type DialogResult = Category | undefined;
+type DialogData = { category: Partial<Category> };
+type DialogResult = Category;
 
 @Component({
-  selector: 'app-category.component',
+  selector: 'app-category-details',
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './category.component.html',
+  templateUrl: './category-details.component.html',
 })
-export class CategoryComponent {
+export class CategoryDetailsComponent {
   private fb = inject(FormBuilder); // new DI: inject()
   dialogRef = inject<DialogRef<DialogResult>>(DialogRef); // new DI: inject()
   data = inject<DialogData>(DIALOG_DATA);
-  isSaving = signal(false);
-  serverError = signal<string | null>(null);
-  saveRequested = output<Category>();
+  isSaving = input(false);
+  error = input<string | null>(null);
+  saveRequested = output<Omit<Category, 'id' | 'createdAt' | 'updatedAt'>>();
 
   form: FormGroup = this.fb.group({
     name: ['', [Validators.required]],
@@ -32,9 +32,7 @@ export class CategoryComponent {
 
   onSubmit(): void {
     if (this.form.valid) {
-      this.serverError.set(null);
-      this.isSaving.set(true);
-      this.saveRequested.emit(this.form.value as Category);
+      this.saveRequested.emit(this.form.value as Omit<Category, 'id' | 'createdAt' | 'updatedAt'>);
       //this.dialogRef.close(this.form.value);
     }
   }

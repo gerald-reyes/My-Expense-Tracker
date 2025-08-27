@@ -4,14 +4,12 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./layout/layout.component/layout.component').then((m) => m.LayoutComponent),
+      import('./features/layout/pages/layout/layout.page').then((m) => m.LayoutPage),
     children: [
       {
-        path: 'expenses',
+        path: 'categories',
         loadChildren: () =>
-          import('./features/expense_categories/expenses.categories.routes').then(
-            (m) => m.expensesCategoriesRoutes,
-          ),
+          import('./features/categories/categories.routes').then((m) => m.CategoriesRoutes),
       },
     ],
   },

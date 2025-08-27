@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { firstValueFrom, map } from 'rxjs';
+import { map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +13,6 @@ export class GraphQLService {
       .query<T>({
         query,
         variables,
-        fetchPolicy: 'network-only',
       })
       .pipe(map((result) => result.data?.[key]));
   }

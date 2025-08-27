@@ -53,8 +53,8 @@
     @if (isSaving()) {
       <p class="text-sm text-gray-500">Saving...</p>
     }
-    @if (serverError()) {
-      <p class="error">{{ serverError() }}</p>
+    @if (error()) {
+      <p class="error">{{ error() }}</p>
     }
   </form>
 </div>

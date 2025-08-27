@@ -1,5 +1,5 @@
 <div class="flex flex-col space-y-6 px-4 py-6">
-  <h2 class="text-xl font-semibold text-white text-center mb-10">Expense Categories</h2>
+  <h2 class="text-xl font-semibold text-white text-center mb-10">Categories</h2>
 
   <div class="flex flex-col sm:flex-row sm:justify-between gap-2 mb-10">
     <input
@@ -21,7 +21,7 @@
       <div class="text-white text-lg">Loading...</div>
     } @else if (error()) {
       <div class="text-red-500 text-lg">Error loading categories</div>
-    } @else if ((expenseCategories() ?? []).length > 0) {
+    } @else if (categoriesFacade.categories().length > 0) {
       <ag-grid-angular
         class="w-full h-[300px] sm:h-[800px]"
         [theme]="theme"
@@ -29,7 +29,7 @@
         [defaultColDef]="defaultColDef"
         [isExternalFilterPresent]="isExternalFilterPresent"
         [doesExternalFilterPass]="doesExternalFilterPass"
-        [rowData]="expenseCategories()"
+        [rowData]="categoriesFacade.categories()"
         (gridReady)="onGridReady($event)"
       />
     } @else {
