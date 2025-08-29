@@ -14,7 +14,8 @@ import { CategoryDetailsComponent } from '../../components/category-details/cate
 import { CategoriesFacade } from '../../data-access/categories.facade';
 import { CategoriesApi } from '../../data-access/categories.api';
 import { CategoriesStore } from '../../data-access/categories.store';
-import { pipe, Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
+import { ActionIconsRendererComponent } from '../../../../shared/ui/grid/action-icons-renderer.component';
 
 @Component({
   selector: 'app-categories-list-page',
@@ -23,6 +24,12 @@ import { pipe, Subject, takeUntil } from 'rxjs';
   providers: [CategoriesFacade, CategoriesApi, CategoriesStore],
 })
 export class CategoriesListPage {
+  confirmDelete(row: any) {
+    throw new Error('Method not implemented.');
+  }
+  openEditDialog(data: any) {
+    throw new Error('Method not implemented.');
+  }
   readonly categoriesFacade = inject(CategoriesFacade);
   readonly dialog = inject(Dialog);
   private gridApi!: GridApi<Category>;
@@ -35,7 +42,21 @@ export class CategoriesListPage {
 
   // Correctly typed column definitions for ag-grid
   columnDefs: ColDef<Category>[] = [
+    {
+      headerName: 'Actions',
+      cellRenderer: ActionIconsRendererComponent,
+      cellRendererParams: {
+        onEdit: (row: any) => this.openEditDialog(row),
+        onDelete: (row: any) => this.confirmDelete(row),
+        editIconClass: 'fa-solid fa-pen-to-square',
+        deleteIconClass: 'fa-solid fa-trash',
+      },
+      //width: 100,
+      sortable: false,
+      filter: false,
+    },
     { field: 'id', headerName: 'ID', sortable: true, filter: true },
+    { field: 'isActive', headerName: 'Active', sortable: true, filter: true },
     { field: 'name', headerName: 'Name', sortable: true, filter: true },
     {
       field: 'description',
@@ -48,6 +69,7 @@ export class CategoriesListPage {
       field: 'createdAt',
       headerName: 'Created At',
       sortable: true,
+      sort: 'desc',
       filter: true,
     },
     {
@@ -56,7 +78,6 @@ export class CategoriesListPage {
       sortable: true,
       filter: true,
     },
-    { field: 'isActive', headerName: 'Active', sortable: true, filter: true },
   ];
 
   defaultColDef: ColDef = {
@@ -102,7 +123,6 @@ export class CategoriesListPage {
     });
 
     const handleSaveRequest = (category: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>) => {
-      console.log('category: ', category);
       ref.componentRef!.setInput('isSaving', true);
       this.categoriesFacade
         .create(category)
@@ -113,7 +133,6 @@ export class CategoriesListPage {
             ref.close();
           },
           error: (error) => {
-            ref.componentRef!.setInput('isSaving', false);
             ref.componentRef!.setInput('error', error);
           },
         });
