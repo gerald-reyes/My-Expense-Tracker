@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, effect, EffectRef, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Category } from '../../data-access/models/category.model';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -36,6 +36,9 @@ export class CategoriesListPage {
   public theme = themeQuartz;
   loading = this.categoriesFacade.loading;
   error = this.categoriesFacade.error;
+  categories = this.categoriesFacade.categories;
+  // hold the grid api in a signal too
+  gridApiSig = signal<GridApi | null>(null);
   searchControl = new FormControl<string>('');
   lastResult: unknown;
   private destroy$ = new Subject<void>();
@@ -86,6 +89,17 @@ export class CategoriesListPage {
     filter: true,
   };
 
+  // Tailwind-based spinner shown by the grid overlay
+  overlayLoadingTemplate = `<div class="flex items-center justify-center h-full">
+       <div class="inline-flex items-center gap-3 text-slate-600">
+         <span class="h-10 w-10 animate-spin rounded-full border-6 border-slate-300 border-t-transparent"></span>
+         <span class="font-bold text-2xl">Loading…</span>
+       </div>
+     </div>`;
+
+  // Optional: what to show when there are no rows
+  overlayNoRowsTemplate = `<div class="flex items-center justify-center h-full text-slate-500">No rows</div>`;
+
   ngOnInit() {
     this.categoriesFacade.getAll().pipe(takeUntil(this.destroy$)).subscribe();
 
@@ -96,8 +110,25 @@ export class CategoriesListPage {
     });
   }
 
-  onGridReady(params: GridReadyEvent<Category>) {
+  // create the effect in a field initializer (valid injection context)
+  private overlayEffect = effect(() => {
+    const api = this.gridApiSig(); // reactive
+    const data = this.categories(); // reactive
+    if (!api) return;
+
+    if (data === null) {
+      api.showLoadingOverlay();
+    } else if (data.length > 0) {
+      api.hideOverlay();
+    } else {
+      api.showNoRowsOverlay();
+    }
+  });
+
+  onGridReady(params: GridReadyEvent) {
     this.gridApi = params.api;
+    this.gridApi.showLoadingOverlay(); // immediate spinner
+    this.gridApiSig.set(params.api); // triggers the effect when data changes
   }
 
   isExternalFilterPresent = (): boolean => {
@@ -146,6 +177,7 @@ export class CategoriesListPage {
   }
 
   ngOnDestroy() {
+    this.overlayEffect?.destroy();
     this.destroy$.next();
     this.destroy$.complete();
   }
