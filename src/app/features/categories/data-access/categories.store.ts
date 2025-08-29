@@ -3,18 +3,18 @@ import { CategoriesApi } from './categories.api';
 import { toCategory } from '../data-access/category.adapter';
 import type { Category } from '../data-access/models/category.model';
 import { of, Subject } from 'rxjs';
-import { catchError, finalize, map, tap } from 'rxjs/operators';
+import { catchError, delay, finalize, map, tap } from 'rxjs/operators';
 
 type State = {
   loading: boolean;
-  items: Category[];
+  items: Category[] | null;
   selectedId: number | null;
   error: string | null;
 };
 
 const initial: State = {
   loading: false,
-  items: [],
+  items: null,
   selectedId: null,
   error: null,
 };
@@ -29,7 +29,7 @@ export class CategoriesStore {
   readonly items = computed(() => this.state().items);
   readonly selected = computed(() => {
     const s = this.state();
-    return s.items.find((p) => p.id === s.selectedId) ?? null;
+    return s.items?.find((p) => p.id === s.selectedId) ?? null;
   });
   readonly error = computed(() => this.state().error);
 
@@ -45,6 +45,7 @@ export class CategoriesStore {
     this.patch({ loading: true, error: null });
 
     return this.api.getAll().pipe(
+      delay(2000), // simulate network delay
       map((dtos) => (dtos ?? []).map(toCategory)),
       tap((categories) => {
         this.patch({ items: categories });
@@ -61,9 +62,10 @@ export class CategoriesStore {
 
   create(category: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>) {
     return this.api.create(category).pipe(
+      delay(3000),
       map(toCategory),
       tap((category) => {
-        this.patch({ items: [...this.state().items, category] });
+        this.patch({ items: [...(this.state().items ?? []), category] });
       }),
       catchError((error) => {
         this.patch({ error: error?.message ?? 'Failed to create' });
