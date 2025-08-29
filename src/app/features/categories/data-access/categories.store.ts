@@ -1,9 +1,9 @@
 import { Injectable, signal, computed, effect, inject } from '@angular/core';
 import { CategoriesApi } from './categories.api';
-import { toCategory, toCategoryDto } from '../data-access/category.adapter';
+import { toCategory } from '../data-access/category.adapter';
 import type { Category } from '../data-access/models/category.model';
 import { of, Subject } from 'rxjs';
-import { catchError, finalize, map, takeUntil, tap } from 'rxjs/operators';
+import { catchError, finalize, map, tap } from 'rxjs/operators';
 
 type State = {
   loading: boolean;
@@ -60,8 +60,6 @@ export class CategoriesStore {
   }
 
   create(category: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>) {
-    this.patch({ loading: true, error: null });
-
     return this.api.create(category).pipe(
       map(toCategory),
       tap((category) => {
@@ -70,9 +68,6 @@ export class CategoriesStore {
       catchError((error) => {
         this.patch({ error: error?.message ?? 'Failed to create' });
         return of(null);
-      }),
-      finalize(() => {
-        this.patch({ loading: false });
       }),
     );
   }
