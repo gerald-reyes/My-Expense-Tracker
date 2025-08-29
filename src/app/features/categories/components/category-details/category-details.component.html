@@ -49,18 +49,9 @@
       >
         <span class="flex items-center gap-2">
           @if (isSaving()) {
-            <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-                fill="none"
-              />
-              <path class="opacity-75" d="M4 12a8 8 0 018-8v4" fill="currentColor" />
-            </svg>
+            <span
+              class="h-5 w-5 animate-spin rounded-full border-3 border-slate-300 border-t-transparent"
+            ></span>
           }
           {{ isSaving() ? 'Submitting…' : 'Submit' }}
         </span>
