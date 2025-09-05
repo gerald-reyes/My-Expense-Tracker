@@ -1,4 +1,4 @@
-import { Component, effect, EffectRef, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Category } from '../../data-access/models/category.model';
 import { AgGridAngular } from 'ag-grid-angular';
@@ -16,6 +16,7 @@ import { CategoriesApi } from '../../data-access/categories.api';
 import { CategoriesStore } from '../../data-access/categories.store';
 import { Subject, takeUntil } from 'rxjs';
 import { ActionIconsRendererComponent } from '../../../../shared/ui/grid/action-icons-renderer.component';
+import { ConfirmationModalComponent } from '../../../../shared/ui/modal/confirmation-modal.component';
 
 @Component({
   selector: 'app-categories-list-page',
@@ -24,12 +25,6 @@ import { ActionIconsRendererComponent } from '../../../../shared/ui/grid/action-
   providers: [CategoriesFacade, CategoriesApi, CategoriesStore],
 })
 export class CategoriesListPage {
-  confirmDelete(row: any) {
-    throw new Error('Method not implemented.');
-  }
-  openEditDialog(data: any) {
-    throw new Error('Method not implemented.');
-  }
   readonly categoriesFacade = inject(CategoriesFacade);
   readonly dialog = inject(Dialog);
   private gridApi!: GridApi<Category>;
@@ -147,11 +142,7 @@ export class CategoriesListPage {
   };
 
   addCategory() {
-    const ref = this.dialog.open(CategoryDetailsComponent, {
-      data: { category: { name: '', description: '' } },
-      disableClose: true, // prevent accidental dismiss while saving
-      backdropClass: ['bg-black/40'],
-    });
+    const ref = this.openCategoryDetailsModal();
 
     const handleSaveRequest = (category: Omit<Category, 'id' | 'createdAt' | 'updatedAt'>) => {
       ref.componentRef!.setInput('isSaving', true);
@@ -174,6 +165,77 @@ export class CategoriesListPage {
 
     // Ensure subscription is cleaned up if the dialog is closed prematurely
     ref.closed.subscribe(() => saveRequestedSubscription.unsubscribe());
+  }
+
+  private openCategoryDetailsModal(category?: Category) {
+    return this.dialog.open(CategoryDetailsComponent, {
+      data: { ...category },
+      backdropClass: ['bg-black/80'],
+    });
+  }
+
+  private openConfirmationModal(category?: Category) {
+    return this.dialog.open(ConfirmationModalComponent, {
+      backdropClass: ['bg-black/80'],
+      data: {
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete the category "${category?.id}"?`,
+        acceptText: 'Delete',
+        cancelText: 'Cancel',
+        danger: false,
+      },
+    });
+  }
+
+  confirmDelete(category: Category) {
+    const ref = this.openConfirmationModal(category);
+
+    const deleteRequest = () => {
+      ref.componentRef!.setInput('isSaving', true);
+      this.categoriesFacade
+        .delete(category.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            ref.componentRef!.setInput('isSaving', false);
+            ref.close();
+          },
+          error: (error) => {
+            ref.componentRef!.setInput('error', error);
+          },
+        });
+    };
+
+    const deleteRequestedSubscription =
+      ref.componentInstance!.confirmationEvent.subscribe(deleteRequest);
+
+    // Ensure subscription is cleaned up if the dialog is closed prematurely
+    ref.closed.subscribe(() => deleteRequestedSubscription.unsubscribe());
+  }
+  openEditDialog(category: Category) {
+    const ref = this.openCategoryDetailsModal(category);
+
+    const handleUpdateRequest = (category: Omit<Category, 'createdAt' | 'updatedAt'>) => {
+      ref.componentRef!.setInput('isSaving', true);
+      this.categoriesFacade
+        .update(category)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            ref.componentRef!.setInput('isSaving', false);
+            ref.close();
+          },
+          error: (error) => {
+            ref.componentRef!.setInput('error', error);
+          },
+        });
+    };
+
+    const updateRequestedSubscription =
+      ref.componentInstance!.updateRequested.subscribe(handleUpdateRequest);
+
+    // Ensure subscription is cleaned up if the dialog is closed prematurely
+    ref.closed.subscribe(() => updateRequestedSubscription.unsubscribe());
   }
 
   ngOnDestroy() {
