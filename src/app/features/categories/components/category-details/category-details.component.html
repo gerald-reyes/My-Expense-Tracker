@@ -1,64 +1,88 @@
-<div
-  role="dialog"
-  aria-modal="true"
-  [attr.aria-labelledby]="'dlg-title'"
-  class="w-[min(92vw,28rem)] rounded-2xl bg-white p-6 shadow-xl"
->
-  <h2 id="dlg-title" class="text-xl font-semibold mb-4">User</h2>
-
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
-    <div>
-      <label for="name" class="block text-sm font-medium mb-1">Name</label>
-      <input
-        id="name"
-        type="text"
-        formControlName="name"
-        class="w-full rounded-lg border px-3 py-2"
-        autofocus
-      />
-      @if (form.get('name')?.touched && form.get('name')?.invalid) {
-        <p class="text-sm text-red-600 mt-1">Name is required.</p>
-      }
-    </div>
-
-    <div>
-      <label for="description" class="block text-sm font-medium mb-1">Description</label>
-      <textarea
-        id="description"
-        formControlName="description"
-        class="w-full rounded-lg border px-3 py-2"
-      ></textarea>
-      @if (form.get('description')?.touched && form.get('description')?.invalid) {
-        <p class="text-sm text-red-600 mt-1">Description is required.</p>
-      }
-    </div>
-
-    <div class="flex justify-end gap-2 pt-2">
-      <button
-        type="button"
-        [disabled]="form.invalid || isSaving()"
-        class="rounded-lg px-3 py-2 border"
-        (click)="dialogRef.close()"
+<div class="w-full sm:min-w-xl outline-none" role="dialog" aria-modal="true">
+  <div
+    cdkTrapFocus
+    class="rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 dark:bg-neutral-800 dark:ring-white/40"
+    aria-labelledby="dialog-title"
+  >
+    <div class="px-6 pt-5">
+      <h2
+        id="dialog-title"
+        class="text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-100"
       >
-        Cancel
-      </button>
-      <button
-        type="submit"
-        class="rounded-lg px-4 py-2 bg-black text-white disabled:opacity-50"
-        [disabled]="form.invalid || isSaving()"
-      >
-        <span class="flex items-center gap-2">
-          @if (isSaving()) {
-            <span
-              class="h-5 w-5 animate-spin rounded-full border-3 border-slate-300 border-t-transparent"
-            ></span>
+        Category Details {{ isEditMode() ? `(${data?.id})` : '' }}
+      </h2>
+      <div class="mt-2 text-sm text-neutral-600 dark:text-neutral-100">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+          <div>
+            <label for="name" class="block text-sm font-medium mb-1">Name</label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              class="w-full rounded-lg border px-3 py-2"
+              autofocus
+            />
+            @if (form.get('name')?.touched && form.get('name')?.invalid) {
+              <p class="text-sm text-red-600 mt-1">Name is required.</p>
+            }
+          </div>
+
+          <div>
+            <label for="description" class="block text-sm font-medium mb-1">Description</label>
+            <textarea
+              id="description"
+              formControlName="description"
+              class="w-full rounded-lg border px-3 py-2"
+            ></textarea>
+            @if (form.get('description')?.touched && form.get('description')?.invalid) {
+              <p class="text-sm text-red-600 mt-1">Description is required.</p>
+            }
+          </div>
+
+          <div>
+            <label for="isActive" class="block text-sm font-medium mb-1">Active</label>
+            <input
+              id="isActive"
+              type="checkbox"
+              formControlName="isActive"
+              class="rounded-lg border px-3 py-2"
+            />
+          </div>
+
+          <div class="mt-6 flex items-center justify-end gap-3 pb-5">
+            <button
+              type="button"
+              [disabled]="isSaving()"
+              class="inline-flex items-center rounded-xl px-4 py-2 text-sm font-medium bg-neutral-500 hover:bg-neutral-600 text-white"
+              (click)="closeDialog()"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="inline-flex items-center rounded-xl px-4 py-2 text-sm font-medium disabled:bg-neutral-400"
+              [ngClass]="
+                isEditMode()
+                  ? 'bg-red-500 text-white hover:bg-red-600'
+                  : 'bg-blue-500 text-white hover:bg-blue-600'
+              "
+              [disabled]="form.invalid || isSaving()"
+            >
+              <span class="flex items-center gap-2">
+                @if (isSaving()) {
+                  <span
+                    class="h-5 w-5 animate-spin rounded-full border-3 border-slate-300 border-t-transparent"
+                  ></span>
+                }
+                {{ isSaving() ? 'Submitting…' : isEditMode() ? 'Update' : 'Create' }}
+              </span>
+            </button>
+          </div>
+          @if (error()) {
+            <p class="error">{{ error() }}</p>
           }
-          {{ isSaving() ? 'Submitting…' : 'Submit' }}
-        </span>
-      </button>
+        </form>
+      </div>
     </div>
-    @if (error()) {
-      <p class="error">{{ error() }}</p>
-    }
-  </form>
+  </div>
 </div>
