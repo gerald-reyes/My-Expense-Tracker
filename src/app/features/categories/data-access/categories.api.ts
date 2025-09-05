@@ -73,8 +73,8 @@ export class CategoriesApi {
       }
     `,
     update: gql`
-      mutation ($id: Int!, $updates: UpdateExpenseCategoryInput!) {
-        updateExpenseCategory(id: $id, updates: $updates) {
+      mutation ($input: UpdateExpenseCategoryInput!) {
+        updateExpenseCategory(input: $input) {
           id
           name
           description
@@ -127,18 +127,15 @@ export class CategoriesApi {
       );
   }
 
-  update(
-    id: number,
-    updates: Partial<Omit<CategoryDto, 'id' | 'createdAt' | 'updatedAt'>>,
-  ) {
+  update(category: Partial<Omit<CategoryDto, 'createdAt' | 'updatedAt'>>) {
     return this.gqlService
       .runMutation<{
-        updateExpenseCategory: CategoryDto | null | undefined;
-      }>(this.mutations.update, { id, updates }, 'updateExpenseCategory')
+        updateExpenseCategory: CategoryDto;
+      }>(this.mutations.update, { input: { ...category } }, 'updateExpenseCategory')
       .pipe(
         map((result) => {
           if (!result) {
-            throw new Error(`Failed to update expense category with id ${id}`);
+            throw new Error(`Failed to update expense category with id ${category.id}`);
           }
           return result;
         }),
@@ -172,11 +169,7 @@ export class CategoriesApi {
     return this.gqlService
       .runQuery<{
         filterExpenseCategories: CategoryDto[];
-      }>(
-        this.queries.filterByActiveStatus,
-        { isActive },
-        'filterExpenseCategories',
-      )
+      }>(this.queries.filterByActiveStatus, { isActive }, 'filterExpenseCategories')
       .pipe(map((categories) => categories || []));
   }
 }
