@@ -45,7 +45,7 @@ export class CategoriesStore {
     this.patch({ loading: true, error: null });
 
     return this.api.getAll().pipe(
-      delay(2000), // simulate network delay
+      delay(1000), // simulate network delay
       map((dtos) => (dtos ?? []).map(toCategory)),
       tap((categories) => {
         this.patch({ items: categories });
@@ -70,6 +70,40 @@ export class CategoriesStore {
       catchError((error) => {
         this.patch({ error: error?.message ?? 'Failed to create' });
         return of(null);
+      }),
+    );
+  }
+
+  update(category: Omit<Category, 'createdAt' | 'updatedAt'>) {
+    return this.api.update(category).pipe(
+      delay(3000),
+      map(toCategory),
+      tap((category) => {
+        this.patch({
+          items: this.state().items?.map((item) => (item.id === category.id ? category : item)),
+        });
+      }),
+      catchError((error) => {
+        this.patch({ error: error?.message ?? 'Failed to update' });
+        return of(null);
+      }),
+    );
+  }
+
+  delete(id: number) {
+    return this.api.delete(id).pipe(
+      delay(3000),
+      tap((success) => {
+        if (success) {
+          this.patch({
+            items: this.state().items?.filter((item) => item.id !== id) ?? null,
+            selectedId: this.state().selectedId === id ? null : this.state().selectedId,
+          });
+        }
+      }),
+      catchError((error) => {
+        this.patch({ error: error?.message ?? 'Failed to delete' });
+        return of(false);
       }),
     );
   }
