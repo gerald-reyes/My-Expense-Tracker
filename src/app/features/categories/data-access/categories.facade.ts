@@ -18,6 +18,14 @@ export class CategoriesFacade {
     return this.store.create(category);
   }
 
+  update(category: Omit<Category, 'createdAt' | 'updatedAt'>) {
+    return this.store.update(category);
+  }
+
+  delete(id: number) {
+    return this.store.delete(id);
+  }
+
   select(id: number | null) {
     this.store.select(id);
   }
