@@ -169,7 +169,10 @@ export class CategoriesListPage {
 
   private openCategoryDetailsModal(category?: Category) {
     return this.dialog.open(CategoryDetailsComponent, {
-      data: { ...category },
+      data: {
+        category,
+        parentCategories: this.categories()?.filter((c) => c.parentId === undefined),
+      },
       backdropClass: ['bg-black/80'],
     });
   }
