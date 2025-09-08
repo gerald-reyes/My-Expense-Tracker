@@ -64,6 +64,13 @@ export class CategoriesListPage {
       flex: 1, // This column will expand to take extra space
     },
     {
+      field: 'parent',
+      headerName: 'Parent',
+      sortable: true,
+      filter: true,
+      valueGetter: (params) => params.data?.parent?.name,
+    },
+    {
       field: 'createdAt',
       headerName: 'Created At',
       sortable: true,
@@ -171,7 +178,7 @@ export class CategoriesListPage {
     return this.dialog.open(CategoryDetailsComponent, {
       data: {
         category,
-        parentCategories: this.categories()?.filter((c) => c.parentId === undefined),
+        parentCategories: this.categories()?.filter((c) => c.parentId === null) || [],
       },
       backdropClass: ['bg-black/80'],
     });
