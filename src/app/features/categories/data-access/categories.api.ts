@@ -4,6 +4,10 @@ import { gql } from 'apollo-angular';
 import { map } from 'rxjs';
 import { CategoryDto } from './models/category.dto';
 
+type CreateCategoryInput = Pick<CategoryDto, 'name' | 'description' | 'isActive' | 'parentId'>;
+
+type UpdateCategoryInput = Omit<CategoryDto, 'createdAt' | 'updatedAt'>;
+
 @Injectable()
 export class CategoriesApi {
   private readonly gqlService = inject(GraphQLService);
@@ -18,6 +22,7 @@ export class CategoriesApi {
           createdAt
           updatedAt
           isActive
+          parentId
         }
       }
     `,
@@ -30,6 +35,7 @@ export class CategoriesApi {
           createdAt
           updatedAt
           isActive
+          parentId
         }
       }
     `,
@@ -42,6 +48,7 @@ export class CategoriesApi {
           createdAt
           updatedAt
           isActive
+          parentId
         }
       }
     `,
@@ -54,6 +61,7 @@ export class CategoriesApi {
           createdAt
           updatedAt
           isActive
+          parentId
         }
       }
     `,
@@ -69,6 +77,7 @@ export class CategoriesApi {
           createdAt
           updatedAt
           isActive
+          parentId
         }
       }
     `,
@@ -81,6 +90,7 @@ export class CategoriesApi {
           createdAt
           updatedAt
           isActive
+          parentId
         }
       }
     `,
@@ -112,11 +122,11 @@ export class CategoriesApi {
     }>(this.queries.getAll, {}, 'expenseCategories');
   }
 
-  create(category: Omit<CategoryDto, 'id' | 'createdAt' | 'updatedAt'>) {
+  create(category: CreateCategoryInput) {
     return this.gqlService
       .runMutation<{
-        createExpenseCategory: CategoryDto | undefined;
-      }>(this.mutations.create, { input: category }, 'createExpenseCategory')
+        createExpenseCategory: CategoryDto;
+      }>(this.mutations.create, { input: { ...category } }, 'createExpenseCategory')
       .pipe(
         map((result) => {
           if (!result) {
@@ -127,7 +137,7 @@ export class CategoriesApi {
       );
   }
 
-  update(category: Partial<Omit<CategoryDto, 'createdAt' | 'updatedAt'>>) {
+  update(category: UpdateCategoryInput) {
     return this.gqlService
       .runMutation<{
         updateExpenseCategory: CategoryDto;
