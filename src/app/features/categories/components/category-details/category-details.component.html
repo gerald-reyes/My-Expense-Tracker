@@ -9,7 +9,7 @@
         id="dialog-title"
         class="text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-100"
       >
-        Category Details {{ isEditMode() ? `(${data?.id})` : '' }}
+        Category Details {{ isEditMode ? `(${data?.category?.id})` : '' }}
       </h2>
       <div class="mt-2 text-sm text-neutral-600 dark:text-neutral-100">
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
@@ -62,7 +62,7 @@
               type="submit"
               class="inline-flex items-center rounded-xl px-4 py-2 text-sm font-medium disabled:bg-neutral-400"
               [ngClass]="
-                isEditMode()
+                isEditMode
                   ? 'bg-red-500 text-white hover:bg-red-600'
                   : 'bg-blue-500 text-white hover:bg-blue-600'
               "
@@ -74,7 +74,7 @@
                     class="h-5 w-5 animate-spin rounded-full border-3 border-slate-300 border-t-transparent"
                   ></span>
                 }
-                {{ isSaving() ? 'Submitting…' : isEditMode() ? 'Update' : 'Create' }}
+                {{ isSaving() ? 'Submitting…' : isEditMode ? 'Update' : 'Create' }}
               </span>
             </button>
           </div>

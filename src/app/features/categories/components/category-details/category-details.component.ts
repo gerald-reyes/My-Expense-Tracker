@@ -5,8 +5,11 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { CommonModule } from '@angular/common';
 import { Category } from '../../data-access/models/category.model';
 
-type DialogData = { category: Partial<Category> };
 type DialogResult = Category | null;
+type CategoryDetailsDialogData = {
+  category?: Category;
+  parentCategories?: Category[];
+};
 
 @Component({
   selector: 'app-category-details',
@@ -14,20 +17,22 @@ type DialogResult = Category | null;
   templateUrl: './category-details.component.html',
 })
 export class CategoryDetailsComponent {
-  private fb = inject(FormBuilder); // new DI: inject()
-  dialogRef = inject<DialogRef<DialogResult>>(DialogRef); // new DI: inject()
-  readonly data = inject<Category | null>(DIALOG_DATA, { optional: true });
-  isEditMode = signal(!!this.data?.id);
+  private fb = inject(FormBuilder);
+  dialogRef = inject<DialogRef<DialogResult>>(DialogRef);
+  readonly data = inject<CategoryDetailsDialogData>(DIALOG_DATA, {
+    optional: true,
+  });
   isSaving = input(false);
+  isEditMode = false;
   error = input<string | null>(null);
   saveRequested = output<Omit<Category, 'id' | 'createdAt' | 'updatedAt'>>();
   updateRequested = output<Omit<Category, 'createdAt' | 'updatedAt'>>();
 
   form: FormGroup = this.fb.group({
-    id: [this.data?.id || null],
-    name: ['', [Validators.required]],
-    description: ['', [Validators.maxLength(255)]],
-    isActive: [this.data?.isActive || false],
+    id: [this.data?.category?.id || null],
+    name: [this.data?.category?.name || '', [Validators.required]],
+    description: [this.data?.category?.description || '', [Validators.maxLength(255)]],
+    isActive: [this.data?.category?.isActive || false],
   });
 
   closeDialog(): void {
@@ -35,27 +40,18 @@ export class CategoryDetailsComponent {
   }
 
   constructor() {
-    this.isEditMode.set(!!this.data?.id);
-    if (this.data) {
-      this.form.patchValue({
-        id: this.data.id,
-        name: this.data.name,
-        description: this.data.description,
-        isActive: this.data.isActive,
-      });
-    }
+    this.isEditMode = !!this.data?.category?.id;
   }
 
   onSubmit(): void {
     if (this.form.valid) {
-      if (this.isEditMode()) {
+      if (this.isEditMode) {
         this.updateRequested.emit(this.form.value as Omit<Category, 'createdAt' | 'updatedAt'>);
       } else {
         this.saveRequested.emit(
           this.form.value as Omit<Category, 'id' | 'createdAt' | 'updatedAt'>,
         );
       }
-      //this.dialogRef.close(this.form.value);
     }
   }
 }
