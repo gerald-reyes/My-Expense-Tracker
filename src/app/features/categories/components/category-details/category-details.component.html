@@ -9,12 +9,12 @@
         id="dialog-title"
         class="text-lg font-semibold tracking-tight text-neutral-900 dark:text-neutral-100"
       >
-        Category Details {{ isEditMode ? `(${data?.category?.id})` : '' }}
+        Category Details {{ isEditMode ? `(${data.category?.id})` : '' }}
       </h2>
-      <div class="mt-2 text-sm text-neutral-600 dark:text-neutral-100">
+      <div class="mt-2 text-neutral-600 dark:text-neutral-100">
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
           <div>
-            <label for="name" class="block text-sm font-medium mb-1">Name</label>
+            <label for="name" class="block font-medium mb-1">Name</label>
             <input
               id="name"
               type="text"
@@ -28,19 +28,33 @@
           </div>
 
           <div>
-            <label for="description" class="block text-sm font-medium mb-1">Description</label>
+            <label for="description" class="block font-medium mb-1">Description</label>
             <textarea
               id="description"
               formControlName="description"
               class="w-full rounded-lg border px-3 py-2"
             ></textarea>
             @if (form.get('description')?.touched && form.get('description')?.invalid) {
-              <p class="text-sm text-red-600 mt-1">Description is required.</p>
+              <p class="text-sm text-red-600 mt-1">Description is to large.</p>
             }
           </div>
 
           <div>
-            <label for="isActive" class="block text-sm font-medium mb-1">Active</label>
+            <label for="parentId" class="block font-medium mb-1">Parent</label>
+            <select
+              id="parentId"
+              formControlName="parentId"
+              class="w-full rounded-lg border px-3 py-2"
+            >
+              <option value="null">None</option>
+              @for (category of parentCategories; track category.id) {
+                <option [value]="category.id">{{ category.name }}</option>
+              }
+            </select>
+          </div>
+
+          <div>
+            <label for="isActive" class="block font-medium mb-1">Active</label>
             <input
               id="isActive"
               type="checkbox"
@@ -53,14 +67,14 @@
             <button
               type="button"
               [disabled]="isSaving()"
-              class="inline-flex items-center rounded-xl px-4 py-2 text-sm font-medium bg-neutral-500 hover:bg-neutral-600 text-white"
+              class="inline-flex items-center rounded-xl px-4 py-2 font-medium bg-neutral-500 hover:bg-neutral-600 text-white"
               (click)="closeDialog()"
             >
               Cancel
             </button>
             <button
               type="submit"
-              class="inline-flex items-center rounded-xl px-4 py-2 text-sm font-medium disabled:bg-neutral-400"
+              class="inline-flex items-center rounded-xl px-4 py-2 font-medium disabled:bg-neutral-400"
               [ngClass]="
                 isEditMode
                   ? 'bg-red-500 text-white hover:bg-red-600'

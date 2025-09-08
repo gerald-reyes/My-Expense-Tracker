@@ -8,7 +8,7 @@ import { Category } from '../../data-access/models/category.model';
 type DialogResult = Category | null;
 type CategoryDetailsDialogData = {
   category?: Category;
-  parentCategories?: Category[];
+  parentCategories: Category[];
 };
 
 @Component({
@@ -19,38 +19,51 @@ type CategoryDetailsDialogData = {
 export class CategoryDetailsComponent {
   private fb = inject(FormBuilder);
   dialogRef = inject<DialogRef<DialogResult>>(DialogRef);
-  readonly data = inject<CategoryDetailsDialogData>(DIALOG_DATA, {
-    optional: true,
-  });
+  readonly data = inject<CategoryDetailsDialogData>(DIALOG_DATA, {});
   isSaving = input(false);
   isEditMode = false;
+  parentCategories: Category[] = [];
   error = input<string | null>(null);
   saveRequested = output<Omit<Category, 'id' | 'createdAt' | 'updatedAt'>>();
   updateRequested = output<Omit<Category, 'createdAt' | 'updatedAt'>>();
 
-  form: FormGroup = this.fb.group({
-    id: [this.data?.category?.id || null],
-    name: [this.data?.category?.name || '', [Validators.required]],
-    description: [this.data?.category?.description || '', [Validators.maxLength(255)]],
-    isActive: [this.data?.category?.isActive || false],
-  });
+  form: FormGroup;
+
+  constructor() {
+    this.isEditMode = !!this.data.category?.id;
+
+    this.parentCategories = this.data.parentCategories;
+
+    this.form = this.fb.group({
+      id: [this.data.category?.id || null],
+      name: [this.data.category?.name || '', [Validators.required]],
+      description: [this.data.category?.description || '', [Validators.maxLength(255)]],
+      isActive: [this.data.category?.isActive || false],
+      parentId: [this.data.category?.parentId || null],
+    });
+  }
 
   closeDialog(): void {
     this.dialogRef.close();
   }
 
-  constructor() {
-    this.isEditMode = !!this.data?.category?.id;
-  }
-
   onSubmit(): void {
     if (this.form.valid) {
       if (this.isEditMode) {
-        this.updateRequested.emit(this.form.value as Omit<Category, 'createdAt' | 'updatedAt'>);
+        this.updateRequested.emit({
+          id: this.form.value.id,
+          name: this.form.value.name,
+          description: this.form.value.description,
+          isActive: !!this.form.value.isActive,
+          parentId: this.form.value.parentId ? +this.form.value.parentId : null,
+        });
       } else {
-        this.saveRequested.emit(
-          this.form.value as Omit<Category, 'id' | 'createdAt' | 'updatedAt'>,
-        );
+        this.saveRequested.emit({
+          name: this.form.value.name,
+          description: this.form.value.description,
+          isActive: !!this.form.value.isActive,
+          parentId: this.form.value.parentId ? +this.form.value.parentId : null,
+        });
       }
     }
   }
