@@ -36,6 +36,10 @@ export class CategoriesApi {
           updatedAt
           isActive
           parentId
+          parent {
+            id
+            name
+          }
         }
       }
     `,

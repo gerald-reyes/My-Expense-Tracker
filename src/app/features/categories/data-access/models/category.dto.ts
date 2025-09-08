@@ -6,4 +6,8 @@ export interface CategoryDto {
   updatedAt: Date;
   isActive: boolean;
   parentId?: number | null;
+  parent?: {
+    id: number;
+    name: string;
+  };
 }

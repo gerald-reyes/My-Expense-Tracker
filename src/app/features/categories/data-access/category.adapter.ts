@@ -9,6 +9,7 @@ export const toCategory = (dto: CategoryDto): Category => ({
   updatedAt: dto.updatedAt,
   isActive: dto.isActive,
   parentId: dto.parentId,
+  parent: dto.parent,
 });
 
 export const toCategoryDto = (m: Category): CategoryDto => ({
@@ -19,4 +20,5 @@ export const toCategoryDto = (m: Category): CategoryDto => ({
   updatedAt: m.updatedAt,
   isActive: m.isActive,
   parentId: m.parentId,
+  parent: m.parent,
 });
